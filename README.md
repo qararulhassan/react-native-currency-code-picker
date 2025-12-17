@@ -257,7 +257,7 @@ Below are the props you can pass to the React Component.
 />
 ```
 
-# :crossed_flags: Supported langs. :crossed_flags:
+<!-- # :crossed_flags: Supported langs. :crossed_flags:
 
 ```JS 
   "name": {
@@ -281,7 +281,7 @@ Below are the props you can pass to the React Component.
     "he": "Hebrew",
     "tr": "Turkish"
   },
-```
+``` -->
 
 You can add your lang. if you need !!! But after that make a PR please, it will help other people.
 
