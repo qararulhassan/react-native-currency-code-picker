@@ -1,5 +1,5 @@
 {
-  "name": "react-native-currency-codes-picker",
+  "name": "@a28studio/react-native-currency-codes-picker",
   "version": "2.3.5",
   "description": "This lib. provide currency iso picker with search functionality",
   "main": "index.tsx",
