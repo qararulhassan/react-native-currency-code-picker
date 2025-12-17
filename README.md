@@ -25,7 +25,7 @@ yarn: `yarn add react-native-currency-codes-picker`
 
 # Example
 
-![ezgif com-gif-maker](https://user-images.githubusercontent.com/47904385/195978433-29982bec-b5cc-4d2a-ba01-4eb686005567.gif)
+<!-- ![ezgif com-gif-maker](https://user-images.githubusercontent.com/47904385/195978433-29982bec-b5cc-4d2a-ba01-4eb686005567.gif) -->
 
 # Basic usage
 
