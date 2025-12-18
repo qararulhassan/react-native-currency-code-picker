@@ -1,30 +1,11 @@
-import React from 'react';
-import {
-    FlatList,
-    TextInput,
-    View,
-    Text,
-    Animated,
-    Dimensions,
-    Easing,
-    Platform,
-    Keyboard,
-    ViewStyle,
-    Modal,
-    TextStyle
-} from 'react-native';
-import { CurrencyItem, ItemTemplateProps, Style, ListHeaderComponentProps } from "./types/Types";
+import React from "react";
+import { Animated, Easing, FlatList, Keyboard, Modal, Platform, Text, TextInput, TextStyle, View, ViewStyle } from "react-native";
+import { ButtonProps, CountryList, ListHeaderComponentProps, Style } from "./types/Types";
+import { Button } from "./components/Button";
+import { removeDiacritics } from "./helpers/diacriticsRemover";
+import { countriesRemover } from "./helpers/countriesRemover";
 import { useKeyboardStatus } from "./helpers/useKeyboardStatus";
-import { CurrencyButton } from "./components/CurrencyButton";
-import { currenciesRemover } from "./helpers/currenciesRemover";
-import { removeDiacritics } from './helpers/diacriticsRemover';
-
-export { currencyCodes } from './constants/currencyCodes'
-export { CurrencyButton } from "./components/CurrencyButton";
-export type { CurrencyItem, ItemTemplateProps, Style, ListHeaderComponentProps } from "./types/Types";
-
-
-const height = Dimensions.get('window').height;
+import { Dimensions } from "react-native";
 
 /**
  * Currency picker component
@@ -45,10 +26,132 @@ const height = Dimensions.get('window').height;
  * @param rest
  */
 
-interface Props {
-    excludedCurrencies?: string[],
+/********************************************************* 
+ ********************************************************* 
+ 
+    COUNTRIES LIST
+
+ *********************************************************  
+ ********************************************************* 
+*/
+
+interface CountriesListProps {
+    type?: string,
+    searchValue?: string,
+    excludedCountries?: string[],
+    popularCountries?: string[],
     showOnly?: string[],
-    popularCurrencies?: string[],
+
+    ListHeaderComponent?: (props: ListHeaderComponentProps) => JSX.Element,
+    itemTemplate?: (props: ButtonProps) => JSX.Element,
+    pickerButtonOnPress: (item: CountryList) => any,
+
+    style?: Style,
+}
+
+export const CountriesList = ({
+    showOnly,
+    popularCountries,
+    type,
+    searchValue = '',
+    excludedCountries,
+    style,
+    pickerButtonOnPress,
+    ListHeaderComponent,
+    itemTemplate: ItemTemplate = Button,
+    ...rest
+}: CountriesListProps) => {
+    // ToDo refactor exclude and showOnly props to objects
+    let filteredCodes = countriesRemover(excludedCountries);
+
+    const preparedPopularCountries = React.useMemo(() => {
+        return filteredCodes?.filter(country => {
+            return (popularCountries?.find(short => country?.alpha2 === short?.toUpperCase()));
+        });
+    }, [popularCountries]);
+
+    const codes = React.useMemo(() => {
+        let newCodes = filteredCodes;
+
+        if (showOnly?.length) {
+            newCodes = filteredCodes?.filter(country => {
+                return (showOnly?.find(short => country?.alpha2 === short?.toUpperCase()));
+            });
+        }
+
+        return newCodes
+    }, [showOnly, excludedCountries]);
+
+    const resultCountries = React.useMemo(() => {
+        const lowerSearchValue = searchValue.toLowerCase();
+
+        return codes.filter((country) => {
+            if (country?.alpha2.includes(searchValue) ||
+                country?.name.toLowerCase().includes(lowerSearchValue.trim()) ||
+                removeDiacritics(country?.name.toLowerCase()).includes(lowerSearchValue.trim())
+            ) {
+                return country;
+            }
+        });
+    }, [searchValue]);
+
+    const renderItem = ({ item, index }: { item: CountryList, index: number }) => {
+        let itemName = item?.name;
+        let checkName = itemName.length ? itemName : item?.name;
+
+        return (
+            <ItemTemplate
+                key={index}
+                item={item}
+                style={style}
+                type={type}
+                name={checkName}
+                onPress={() => {
+                    Keyboard.dismiss();
+                    typeof pickerButtonOnPress === 'function' && pickerButtonOnPress(item);
+                }}
+            />
+        );
+    };
+
+    return (
+        <FlatList
+            showsVerticalScrollIndicator={false}
+            data={(resultCountries || codes)}
+            keyExtractor={(item, index) => '' + item + index}
+            initialNumToRender={10}
+            maxToRenderPerBatch={10}
+            style={[style?.itemsList]}
+            keyboardShouldPersistTaps={'handled'}
+            renderItem={renderItem}
+            ListHeaderComponent={(popularCountries && ListHeaderComponent) &&
+                <ListHeaderComponent
+                    countries={preparedPopularCountries}
+                    onPress={(item: CountryList) => {
+                        Keyboard.dismiss();
+                        typeof pickerButtonOnPress === 'function' && pickerButtonOnPress(item);
+                    }}
+                />
+            }
+
+            {...rest}
+        />
+    )
+};
+
+/********************************************************* 
+ ********************************************************* 
+ 
+    COUNTRIES PICKER
+
+ *********************************************************  
+ ********************************************************* 
+*/
+
+interface CountriesPickerProps {
+    excludedCountries?: string[],
+    showOnly?: string[],
+    popularCountries?: string[],
 
     style?: Style,
 
@@ -57,42 +160,43 @@ interface Props {
     disableBackdrop?: boolean,
 
     onBackdropPress?: (...args: any) => any,
-    pickerButtonOnPress: (item: CurrencyItem) => any,
-    itemTemplate?: (props: ItemTemplateProps) => JSX.Element,
+    pickerButtonOnPress: (item: CountryList) => any,
+    itemTemplate?: (props: ButtonProps) => JSX.Element,
     ListHeaderComponent?: (props: ListHeaderComponentProps) => JSX.Element,
     onRequestClose?: (...args: any) => any,
 
-    lang: string,
+    type?: string,
     inputPlaceholder?: string,
     inputPlaceholderTextColor?: TextStyle['color'],
     searchMessage?: string,
     androidWindowSoftInputMode?: string,
     initialState?: string,
 }
+const height = Dimensions.get('window').height;
 
-export const CurrencyPicker = ({
+export const CountriesPicker = ({
     show,
-    popularCurrencies,
+    popularCountries,
     pickerButtonOnPress,
     inputPlaceholder,
     inputPlaceholderTextColor,
     searchMessage,
-    lang = 'en',
+    type,
     style,
     enableModalAvoiding,
     androidWindowSoftInputMode,
     onBackdropPress,
     disableBackdrop,
-    excludedCurrencies,
+    excludedCountries,
     initialState,
     onRequestClose,
     showOnly,
     ListHeaderComponent,
-    itemTemplate: ItemTemplate = CurrencyButton,
+    itemTemplate: ItemTemplate = Button,
     ...rest
-}: Props) => {
+}: CountriesPickerProps) => {
     // ToDo refactor exclude and showOnly props to objects
-    let filteredCodes = currenciesRemover(excludedCurrencies);
+    let filteredCodes = countriesRemover(excludedCountries);
     const keyboardStatus = useKeyboardStatus();
     const animationDriver = React.useRef(new Animated.Value(0)).current;
     const animatedMargin = React.useRef(new Animated.Value(0)).current;
@@ -134,34 +238,34 @@ export const CurrencyPicker = ({
         }
     }, [keyboardStatus.isOpen]);
 
-    const preparedPopularCurrencies = React.useMemo(() => {
-        return filteredCodes?.filter(currency => {
-            return (popularCurrencies?.find(short => currency?.country_code === short?.toUpperCase()));
+    const preparedPopularCountries = React.useMemo(() => {
+        return filteredCodes?.filter(country => {
+            return (popularCountries?.find(short => country?.alpha2 === short?.toUpperCase()));
         });
-    }, [popularCurrencies]);
+    }, [popularCountries]);
 
     const codes = React.useMemo(() => {
         let newCodes = filteredCodes;
 
         if (showOnly?.length) {
-            newCodes = filteredCodes?.filter(currency => {
-                return (showOnly?.find(short => currency?.country_code === short?.toUpperCase()));
+            newCodes = filteredCodes?.filter(country => {
+                return (showOnly?.find(short => country?.alpha2 === short?.toUpperCase()));
             });
         }
-        newCodes.sort((a, b) => (a?.name[lang || 'en'].localeCompare(b?.name[lang || 'en'])));
+        newCodes.sort((a, b) => (a?.name.localeCompare(b?.name)));
 
         return newCodes;
-    }, [showOnly, excludedCurrencies, lang]);
+    }, [showOnly, excludedCountries]);
 
-    const resultCurrencies = React.useMemo(() => {
+    const resultCountries = React.useMemo(() => {
         const lowerSearchValue = searchValue.toLowerCase();
 
-        return codes.filter((currency) => {
-            if (currency?.currency_symbol.includes(searchValue) ||
-                currency?.name[lang || 'en'].toLowerCase().includes(lowerSearchValue) ||
-                removeDiacritics(currency?.name[lang || 'en'].toLowerCase()).includes(lowerSearchValue)
+        return codes.filter((country) => {
+            if (country?.alpha2.includes(searchValue) ||
+                country?.name.toLowerCase().includes(lowerSearchValue) ||
+                removeDiacritics(country?.name.toLowerCase()).includes(lowerSearchValue)
             ) {
-                return currency;
+                return country;
             }
         });
     }, [searchValue]);
@@ -194,15 +298,16 @@ export const CurrencyPicker = ({
         }).start(() => setShowModal(false));
     };
 
-    const renderItem = ({ item, index }: { item: CurrencyItem, index: number }) => {
-        let itemName = item?.name[lang];
-        let checkName = itemName?.length ? itemName : item?.name['en'];
+    const renderItem = ({ item, index }: { item: CountryList, index: number }) => {
+        let itemName = item?.name;
+        let checkName = itemName?.length ? itemName : item?.name;
 
         return (
             <ItemTemplate
                 key={index}
                 item={item}
                 style={style}
+                type={type}
                 name={checkName}
                 onPress={() => {
                     Keyboard.dismiss();
@@ -218,68 +323,41 @@ export const CurrencyPicker = ({
     };
 
     return (
-        <Modal
-            animationType="fade"
-            transparent={true}
-            visible={showModal}
-            onShow={openModal}
-            onRequestClose={onRequestClose}
-        >
-            <View
-                style={{
-                    flex: 1,
-                    justifyContent: 'flex-end'
-                }}
-            >
+        <Modal animationType="fade" transparent={true} visible={showModal} onShow={openModal} onRequestClose={onRequestClose}>
+            <View style={{ flex: 1, justifyContent: 'flex-end' }}>
                 {!disableBackdrop && (
-                    <Animated.View
-                        onStartShouldSetResponder={onStartShouldSetResponder}
-                        style={[
-                            {
-                                flex: 1,
-                                opacity: modalBackdropFade,
-                                backgroundColor: 'rgba(0,0,0,0.45)',
-                                position: 'absolute',
-                                width: '100%',
-                                height: '100%',
-                                justifyContent: 'flex-end'
-                            },
-                            style?.backdrop
-                        ]}
-                    />
-                )}
-                <Animated.View
-                    style={[
-                        styles.modal,
-                        style?.modal,
+                    <Animated.View onStartShouldSetResponder={onStartShouldSetResponder} style={[
                         {
-                            transform: [
-                                {
-                                    translateY: modalPosition,
-                                },
-                            ],
+                            flex: 1,
+                            opacity: modalBackdropFade,
+                            backgroundColor: 'rgba(0,0,0,0.45)',
+                            position: 'absolute',
+                            width: '100%',
+                            height: '100%',
+                            justifyContent: 'flex-end'
                         },
-                    ]}
-                >
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                        }}
-                    >
+                        style?.backdrop
+                    ]}/>
+                )}
+                <Animated.View style={[
+                    styles.modal,
+                    style?.modal,
+                    { transform: [{ translateY: modalPosition }] },
+                ]}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <TextInput
                             style={[styles.searchBar, style?.textInput]}
                             value={searchValue}
                             onChangeText={setSearchValue}
-                            placeholder={inputPlaceholder || 'Search your currency'}
+                            placeholder={inputPlaceholder || 'Search your country'}
                             placeholderTextColor={inputPlaceholderTextColor || '#8c8c8c'}
-                            testID='currencyCodesPickerSearchInput'
+                            testID='countryCodesPickerSearchInput'
                             {...rest}
                         />
                     </View>
                     <View style={[styles.line, style?.line]} />
-                    {resultCurrencies.length === 0 ? (
-                        <View style={[styles.currencyMessage, style?.currencyMessageContainer]}>
+                    {resultCountries.length === 0 ? (
+                        <View style={[styles.countryMessage, style?.messageContainer]}>
                             <Text
                                 style={[
                                     {
@@ -289,25 +367,24 @@ export const CurrencyPicker = ({
                                     style?.searchMessageText,
                                 ]}
                             >
-                                {searchMessage || 'Sorry we cant find your currency :('}
+                                {searchMessage || 'Sorry we cant find your country :('}
                             </Text>
                         </View>
                     ) : (
                         <FlatList
                             showsVerticalScrollIndicator={false}
-                            data={(resultCurrencies || codes)}
+                            data={(resultCountries || codes)}
                             keyExtractor={(item, index) => '' + item + index}
                             initialNumToRender={10}
                             maxToRenderPerBatch={10}
                             style={[style?.itemsList]}
                             keyboardShouldPersistTaps={'handled'}
                             renderItem={renderItem}
-                            testID='currencyCodesPickerFlatList'
-                            ListHeaderComponent={(popularCurrencies && ListHeaderComponent && !searchValue) ?
+                            testID='countryCodesPickerFlatList'
+                            ListHeaderComponent={(popularCountries && ListHeaderComponent && !searchValue) ?
                                 <ListHeaderComponent
-                                    currencies={preparedPopularCurrencies}
-                                    lang={lang}
-                                    onPress={(item: CurrencyItem) => {
+                                    countries={preparedPopularCountries}
+                                    onPress={(item: CountryList) => {
                                         Keyboard.dismiss();
                                         typeof pickerButtonOnPress === 'function' && pickerButtonOnPress(item);
                                     }}
@@ -332,113 +409,7 @@ export const CurrencyPicker = ({
     )
 };
 
-interface CurrencyListProps {
-    lang: string,
-    searchValue?: string,
-    excludedCurrencies?: string[],
-    popularCurrencies?: string[],
-    showOnly?: string[],
-
-    ListHeaderComponent?: (props: ListHeaderComponentProps) => JSX.Element,
-    itemTemplate?: (props: ItemTemplateProps) => JSX.Element,
-    pickerButtonOnPress: (item: CurrencyItem) => any,
-
-    style?: Style,
-}
-
-export const CurrencyList = ({
-    showOnly,
-    popularCurrencies,
-    lang = 'en',
-    searchValue = '',
-    excludedCurrencies,
-    style,
-    pickerButtonOnPress,
-    ListHeaderComponent,
-    itemTemplate: ItemTemplate = CurrencyButton,
-    ...rest
-}: CurrencyListProps) => {
-    // ToDo refactor exclude and showOnly props to objects
-    let filteredCodes = currenciesRemover(excludedCurrencies);
-
-    const preparedPopularCurrencies = React.useMemo(() => {
-        return filteredCodes?.filter(currency => {
-            return (popularCurrencies?.find(short => currency?.country_code === short?.toUpperCase()));
-        });
-    }, [popularCurrencies]);
-
-    const codes = React.useMemo(() => {
-        let newCodes = filteredCodes;
-
-        if (showOnly?.length) {
-            newCodes = filteredCodes?.filter(currency => {
-                return (showOnly?.find(short => currency?.country_code === short?.toUpperCase()));
-            });
-        }
-
-        return newCodes
-    }, [showOnly, excludedCurrencies]);
-
-    const resultCurrencies = React.useMemo(() => {
-        const lowerSearchValue = searchValue.toLowerCase();
-
-        return codes.filter((currency) => {
-            if (currency?.currency_symbol.includes(searchValue) ||
-                currency?.name[lang || 'en'].toLowerCase().includes(lowerSearchValue.trim()) ||
-                removeDiacritics(currency?.name[lang || 'en'].toLowerCase()).includes(lowerSearchValue.trim())
-            ) {
-                return currency;
-            }
-        });
-    }, [searchValue]);
-
-    const renderItem = ({ item, index }: { item: CurrencyItem, index: number }) => {
-        let itemName = item?.name[lang];
-        let checkName = itemName.length ? itemName : item?.name['en'];
-
-        return (
-            <ItemTemplate
-                key={index}
-                item={item}
-                style={style}
-                name={checkName}
-                onPress={() => {
-                    Keyboard.dismiss();
-                    typeof pickerButtonOnPress === 'function' && pickerButtonOnPress(item);
-                }}
-            />
-        );
-    };
-
-    return (
-        <FlatList
-            showsVerticalScrollIndicator={false}
-            data={(resultCurrencies || codes)}
-            keyExtractor={(item, index) => '' + item + index}
-            initialNumToRender={10}
-            maxToRenderPerBatch={10}
-            style={[style?.itemsList]}
-            keyboardShouldPersistTaps={'handled'}
-            renderItem={renderItem}
-            ListHeaderComponent={(popularCurrencies && ListHeaderComponent) &&
-                <ListHeaderComponent
-                    currencies={preparedPopularCurrencies}
-                    lang={lang}
-                    onPress={(item: CurrencyItem) => {
-                        Keyboard.dismiss();
-                        typeof pickerButtonOnPress === 'function' && pickerButtonOnPress(item);
-                    }}
-                />
-            }
-
-            {...rest}
-        />
-    )
-};
-
-
-type StyleKeys = 'container' | 'modal' | 'modalInner' | 'searchBar' | 'currencyMessage' | 'line';
-
+type StyleKeys = 'container' | 'modal' | 'modalInner' | 'searchBar' | 'countryMessage' | 'line';
 const styles: { [key in StyleKeys]: ViewStyle } = {
     container: {
         flex: 1,
@@ -481,7 +452,7 @@ const styles: { [key in StyleKeys]: ViewStyle } = {
         height: 40,
         padding: 5,
     },
-    currencyMessage: {
+    countryMessage: {
         justifyContent: 'center',
         alignItems: 'center',
         height: 250,

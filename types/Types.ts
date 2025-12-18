@@ -1,24 +1,27 @@
 import {ViewStyle, TextStyle} from "react-native";
 
-export interface ItemTemplateProps {
-    item: CurrencyItem,
+export interface ButtonProps {
+    item: CountryList,
     name: string,
     style?: Style,
+    type?: string,
     onPress?: (arg: any) => any,
 }
 
 export interface ListHeaderComponentProps {
-  currencies: CurrencyItem[],
-  lang: string,
-  onPress: (item: CurrencyItem) => void,
+    countries: CountryList[],
+    onPress: (item: CountryList) => void,
 }
 
-export interface CurrencyItem {
-    name: {[key: string]: string},
-    country_code: string,
+export interface CountryList {
+    name: string,
+    alpha2: string,
+    alpha3: string,
+    calling_code: string,
     currency_code: string,
-    currency_symbol: string,
-    flag: string
+    currency_name: string,
+    symbol: string,
+    emoji: string,
 }
 
 export interface Style {
@@ -28,10 +31,14 @@ export interface Style {
     searchMessageText?: TextStyle,
     itemsList?: ViewStyle,
     modalInner?: ViewStyle,
-    currencyMessageContainer?: ViewStyle,
+    messageContainer?: ViewStyle,
     textInput?: TextStyle,
-    currencyButtonStyles?: ViewStyle,
-    flag?: TextStyle,
-    currencySymbol?: TextStyle,
-    currencyName?: TextStyle
+    buttonStyles?: ViewStyle,
+    name: TextStyle,
+    alpha2: TextStyle,
+    alpha3: TextStyle,
+    callingCode: TextStyle,
+    currencyCode: TextStyle,
+    symbol: TextStyle,
+    emoji: TextStyle,
 }

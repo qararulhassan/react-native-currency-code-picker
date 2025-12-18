@@ -1,45 +1,51 @@
 {
-  "name": "react-native-currency-codes-picker",
-  "version": "2.3.5",
-  "description": "This lib. provide currency iso picker with search functionality",
-  "main": "index.tsx",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/qararulhassan/react-native-currency-codes-picker.git"
-  },
-  "keywords": [
-    "react-native",
-    "react",
-    "native",
-    "currency",
-    "picker",
-    "codes",
-    "search",
-    "animated"
-  ],
-  "author": "George Hope",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/qararulhassan/react-native-currency-codes-picker/issues"
-  },
-  "contributors": [
-    {
-      "name": "Mutovkin Yurii",
-      "email": "georgehopekek@gmail.com",
-      "url": "https://github.com/qararulhassan"
-    }
-  ],
-  "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
-  },
-  "devDependencies": {
-    "@types/react": "~18.0.0",
-    "@types/react-native": "~0.69.1",
-    "typescript": "^4.8.2"
-  },
-  "homepage": "https://github.com/qararulhassan/react-native-currency-codes-picker#readme"
+	"name": "react-native-countries-data",
+	"version": "2.3.8",
+	"description": "This lib. provide currency iso picker with search functionality",
+	"main": "index.tsx",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/qararulhassan/react-native-countries-data.git"
+	},
+	"keywords": [
+		"react-native",
+		"react",
+		"native",
+		"countries",
+		"data",
+		"alpha2 codes",
+		"alpha3 codes",
+		"calling codes",
+		"currency codes",
+		"currency names",
+		"emoji",
+		"codes",
+		"search",
+		"animated"
+	],
+	"author": "Qarar Ul Hassan",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/qararulhassan/react-native-countries-data/issues"
+	},
+	"contributors": [
+		{
+			"name": "Qarar Ul Hassan",
+			"email": "qararulhassan@hotmail.com",
+			"url": "https://github.com/qararulhassan"
+		}
+	],
+	"peerDependencies": {
+		"react": "*",
+		"react-native": "*"
+	},
+	"devDependencies": {
+		"@types/react": "~18.0.0",
+		"@types/react-native": "~0.69.1",
+		"typescript": "^4.8.2"
+	},
+	"homepage": "https://github.com/qararulhassan/react-native-countries-data#readme"
 }
