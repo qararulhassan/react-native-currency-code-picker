@@ -175,7 +175,7 @@ Fork the repositoryCreate a new branchCommit your changesOpen a Pull Request
 
 <br />
 
-#### ⭐ **Support**
+### ⭐ **Support**
 If you find this package useful, please consider giving it a ⭐ on GitHub.It helps the community grow ❤️
 
 <br />
