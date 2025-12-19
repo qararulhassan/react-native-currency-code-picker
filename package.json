@@ -1,6 +1,6 @@
 {
-	"name": "react-native-countries-data",
-	"version": "1.0.0",
+	"name": "react-native-country-data",
+	"version": "1.0.1",
 	"description": "This lib. provide currency iso picker with search functionality",
 	"main": "index.tsx",
 	"scripts": {
@@ -8,7 +8,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/qararulhassan/react-native-countries-data.git"
+		"url": "git+https://github.com/qararulhassan/react-native-country-data.git"
 	},
 	"keywords": [
 		"react-native",
@@ -29,7 +29,7 @@
 	"author": "Qarar Ul Hassan",
 	"license": "ISC",
 	"bugs": {
-		"url": "https://github.com/qararulhassan/react-native-countries-data/issues"
+		"url": "https://github.com/qararulhassan/react-native-country-data/issues"
 	},
 	"contributors": [
 		{
@@ -47,5 +47,5 @@
 		"@types/react-native": "~0.69.1",
 		"typescript": "^4.8.2"
 	},
-	"homepage": "https://github.com/qararulhassan/react-native-countries-data#readme"
+	"homepage": "https://github.com/qararulhassan/react-native-country-data#readme"
 }
