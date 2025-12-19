@@ -93,7 +93,7 @@ Use this component as a picker or modal dropdown (same API as CountriesList)
 ```
 import { CountriesPicker } from "react-native-country-data"; 
 
-<CountriesList
+<CountriesPicker
     pickerButtonOnPress={(item) => {
         setShowModalBottom(false);
         setInputFieldValue(item.alpha2);
@@ -112,6 +112,24 @@ import { CountriesPicker } from "react-native-country-data";
         callingCode: {}, 
         name: {} 
     }}
+/>
+```
+
+🚨 **CurrencyList**
+<br />Displays a searchable list of currencies.
+```
+bash
+
+<CountriesList
+    type="currency"
+/>
+```
+**or**
+```
+bash
+
+<CountriesPicker
+    type="currency"
 />
 ```
 
